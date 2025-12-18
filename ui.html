@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <style>
     /* --- GLOBAL STYLES --- */
@@ -10,8 +11,9 @@
       color: #333;
       background-color: #fff;
       font-size: 14px;
-      overflow: hidden; /* Hide scrollbars on body */
-      
+      overflow: hidden;
+      /* Hide scrollbars on body */
+
       /* Disable text selection globally */
       user-select: none;
       -webkit-user-select: none;
@@ -23,19 +25,21 @@
       /* UPDATED: Removed min-height: 100vh so it can resize based on content */
       display: flex;
       flex-direction: column;
-      
+
       /* UPDATED: Visible overflow allows dropdowns to float outside if needed, 
          but we rely on resizing the window to fit content */
-      overflow: visible; 
-      padding-bottom: 4px; /* Tiny buffer for shadow rendering */
+      overflow: visible;
+      padding-bottom: 4px;
+      /* Tiny buffer for shadow rendering */
     }
-    
+
     /* --- TABS SYSTEM --- */
     .tabs {
       display: flex;
       border-bottom: 1px solid #e5e5e5;
-      background: #fafafa;
+      background: #ffffff;
     }
+
     .tab {
       flex: 1;
       text-align: center;
@@ -47,10 +51,15 @@
       border-bottom: 2px solid transparent;
       transition: all 0.2s;
     }
-    .tab:hover { background: #f0f0f0; color: #555; }
+
+    .tab:hover {
+      background: #f0f0f0;
+      color: #555;
+    }
+
     .tab.active {
-      color: #18A0FB;
-      border-bottom: 2px solid #18A0FB;
+      color: #1591EA;
+      border-bottom: 2px solid #1591EA;
       background: #fff;
     }
 
@@ -59,17 +68,22 @@
       padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 20px; 
+      gap: 20px;
     }
 
-    .options-panel { display: none; }
-    .options-panel.active { display: block; }
+    .options-panel {
+      display: none;
+    }
+
+    .options-panel.active {
+      display: block;
+    }
 
     /* --- INPUT GROUP --- */
     .input-group {
       display: flex;
       flex-direction: column;
-      gap: 8px; 
+      gap: 8px;
       width: 100%;
     }
 
@@ -93,14 +107,14 @@
 
     input[type="text"]:focus {
       outline: none;
-      border-color: #18A0FB;
-      box-shadow: 0 0 0 1px #18A0FB;
+      border-color: #1591EA;
+      box-shadow: 0 0 0 1px #1591EA;
     }
 
     /* --- TEXT AREA --- */
     textarea {
       width: 100%;
-      height: 140px; 
+      height: 140px;
       padding: 12px;
       border: 1px solid #e1e1e1;
       border-radius: 8px;
@@ -118,15 +132,15 @@
 
     textarea:focus {
       outline: none;
-      border-color: #18A0FB;
-      box-shadow: 0 0 0 1px #18A0FB;
+      border-color: #1591EA;
+      box-shadow: 0 0 0 1px #1591EA;
     }
 
     textarea[readonly] {
       background-color: #f9f9f9;
       color: #aaa;
       border-color: #eee;
-      pointer-events: none; 
+      pointer-events: none;
       user-select: none;
       -webkit-user-select: none;
       outline: none;
@@ -155,7 +169,9 @@
       transition: all 0.2s;
     }
 
-    .custom-select-trigger:hover { border-color: #ccc; }
+    .custom-select-trigger:hover {
+      border-color: #ccc;
+    }
 
     .custom-select-trigger::after {
       content: '';
@@ -167,10 +183,10 @@
     }
 
     .custom-select-wrapper.open .custom-select-trigger {
-      border-color: #18A0FB;
-      box-shadow: 0 0 0 1px #18A0FB;
+      border-color: #1591EA;
+      box-shadow: 0 0 0 1px #1591EA;
     }
-    
+
     .custom-select-wrapper.open .custom-select-trigger::after {
       transform: rotate(180deg);
     }
@@ -185,7 +201,7 @@
       border: 1px solid #e1e1e1;
       border-radius: 8px;
       margin-top: 4px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
@@ -214,12 +230,12 @@
 
     .custom-option:hover {
       background-color: #f0f8ff;
-      color: #18A0FB;
+      color: #1591EA;
     }
 
     .custom-option.selected {
       background-color: #e6f7ff;
-      color: #18A0FB;
+      color: #1591EA;
       font-weight: 500;
     }
 
@@ -232,17 +248,33 @@
       background: #fafafa;
       position: relative;
     }
-    .file-drop-area:hover { background: #f0f8ff; border-color: #18A0FB; }
-    
+
+    .file-drop-area:hover {
+      background: #f0f8ff;
+      border-color: #1591EA;
+    }
+
     input[type=file] {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       opacity: 0;
       cursor: pointer;
     }
-    .file-msg { font-size: 14px; color: #666; pointer-events: none; }
-    .file-icon { font-size: 20px; display: block; margin-bottom: 8px; }
+
+    .file-msg {
+      font-size: 14px;
+      color: #666;
+      pointer-events: none;
+    }
+
+    .file-icon {
+      font-size: 20px;
+      display: block;
+      margin-bottom: 8px;
+    }
 
     /* --- LAYOUT GRID --- */
     .footer-grid {
@@ -257,12 +289,12 @@
       gap: 6px;
     }
 
-    .footer-item > label {
-      font-size: 14px; 
+    .footer-item>label {
+      font-size: 14px;
       font-weight: 600;
       color: #999;
       text-transform: uppercase;
-      margin: 0; 
+      margin: 0;
     }
 
     /* --- RADIO BUTTONS --- */
@@ -270,9 +302,9 @@
       display: flex;
       align-items: center;
       gap: 20px;
-      height: 32px; 
+      height: 32px;
     }
-    
+
     .radio-item {
       display: flex;
       align-items: center;
@@ -281,10 +313,10 @@
       font-size: 14px;
       color: #333;
       cursor: pointer;
-      text-transform: none; 
+      text-transform: none;
       font-weight: normal;
     }
-    
+
     input[type="radio"] {
       margin: 0;
       width: 16px;
@@ -294,7 +326,7 @@
 
     /* --- BUTTON --- */
     #apply-btn {
-      background-color: #18A0FB;
+      background-color: #1591EA;
       color: white;
       border: none;
       border-radius: 8px;
@@ -303,16 +335,20 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 500; 
+      font-weight: 500;
       font-size: 14px;
       cursor: pointer;
       width: 100%;
       transition: background 0.2s;
       margin-top: 0;
     }
-    #apply-btn:hover { background-color: #0D8ADB; }
+
+    #apply-btn:hover {
+      background-color: #0D8ADB;
+    }
   </style>
 </head>
+
 <body>
 
   <div id="app-wrapper">
@@ -351,7 +387,7 @@
       </div>
 
       <div class="footer-grid">
-        
+
         <div class="footer-item">
           <label>Text Case</label>
           <div class="custom-select-wrapper" id="casing" data-value="original">
@@ -383,11 +419,11 @@
         <label>Order</label>
         <div class="radio-row">
           <label class="radio-item">
-            <input type="radio" name="order" value="sequential" checked> 
+            <input type="radio" name="order" value="sequential" checked>
             Sequential
           </label>
           <label class="radio-item">
-            <input type="radio" name="order" value="random"> 
+            <input type="radio" name="order" value="random">
             Random
           </label>
         </div>
@@ -437,20 +473,20 @@
       document.getElementById('opt-' + tabName).classList.add('active');
 
       const input = document.getElementById('text-input');
-      
+
       if (tabName === 'manual') {
         input.placeholder = "Enter values here...";
-        input.readOnly = false; 
-        input.tabIndex = 0;   
+        input.readOnly = false;
+        input.tabIndex = 0;
         input.focus();
       } else {
         input.placeholder = "Upload a file to populate this box...";
-        input.readOnly = true; 
-        input.tabIndex = -1;  
-        input.value = "";     
-        input.blur();         
+        input.readOnly = true;
+        input.tabIndex = -1;
+        input.value = "";
+        input.blur();
       }
-      
+
       // Force update with slight delay to ensure render complete
       requestAnimationFrame(() => {
         updateHeight();
@@ -460,19 +496,19 @@
 
     // --- FILE UPLOAD LOGIC ---
     const fileInput = document.getElementById('file-input');
-    
+
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
       document.getElementById('file-label').textContent = file.name;
-      document.getElementById('file-label').style.color = "#18A0FB";
+      document.getElementById('file-label').style.color = "#1591EA";
       document.getElementById('file-label').style.fontWeight = "600";
 
       const reader = new FileReader();
       reader.onload = (event) => {
         document.getElementById('text-input').value = event.target.result;
-        
+
         const sepWrapper = document.getElementById('separator');
         sepWrapper.dataset.value = "newline";
         sepWrapper.querySelector('.custom-select-trigger').textContent = "New Line";
@@ -487,16 +523,16 @@
     document.getElementById('apply-btn').onclick = () => {
       const orderValue = document.querySelector('input[name="order"]:checked').value;
 
-      parent.postMessage({ 
-        pluginMessage: { 
-          type: 'apply-text', 
+      parent.postMessage({
+        pluginMessage: {
+          type: 'apply-text',
           textList: document.getElementById('text-input').value,
           mode: orderValue,
           separator: document.getElementById('separator').dataset.value,
           prefix: document.getElementById('prefix').value,
           suffix: document.getElementById('suffix').value,
           casing: document.getElementById('casing').dataset.value
-        } 
+        }
       }, '*');
     }
 
@@ -506,21 +542,22 @@
     function updateHeight() {
       // Get the height of the wrapper content
       const newHeight = appWrapper.offsetHeight;
-      parent.postMessage({ 
-        pluginMessage: { 
-          type: 'resize', 
-          width: 340, 
-          height: newHeight 
-        } 
+      parent.postMessage({
+        pluginMessage: {
+          type: 'resize',
+          width: 340,
+          height: newHeight
+        }
       }, '*');
     }
 
     const resizeObserver = new ResizeObserver(entries => {
       updateHeight();
     });
-    
+
     resizeObserver.observe(appWrapper);
     window.addEventListener('DOMContentLoaded', updateHeight);
   </script>
 </body>
+
 </html>
