@@ -1,21 +1,17 @@
-// Initial load with a default height (will snap to correct size immediately)
-figma.showUI(__html__, { width: 340, height: 500 }); 
+figma.showUI(__html__, { width: 340, height: 400 });
 
 figma.ui.onmessage = async (msg) => {
 
-  // --- NEW: Resize Handler ---
   if (msg.type === 'resize') {
     figma.ui.resize(msg.width, msg.height);
-    return;
   }
 
-  // --- Existing Logic ---
   if (msg.type === 'apply-text') {
     
     let notificationHandler = null;
 
     try {
-      // 1. Validation
+      // 1. Select Layers
       const selection = figma.currentPage.selection;
       const textNodes = selection.filter(node => node.type === "TEXT");
 
@@ -24,52 +20,46 @@ figma.ui.onmessage = async (msg) => {
         return;
       }
 
-      // 2. Parse List
-      let rawList = [];
-      if (msg.separator === 'space') {
-        rawList = msg.textList.trim().split(/\s+/);
-      } else if (msg.separator === 'newline') {
-        rawList = msg.textList.trim().split(/\r?\n/);
-      } else {
-        rawList = msg.textList.split(',');
+      // 2. Parse List (Optional now)
+      // If the user entered text, we parse it. If not, textList stays empty.
+      let textList = [];
+      
+      if (msg.textList && msg.textList.trim().length > 0) {
+        let rawList = [];
+        if (msg.separator === 'space') {
+          rawList = msg.textList.trim().split(/\s+/);
+        } else if (msg.separator === 'newline') {
+          rawList = msg.textList.trim().split(/\r?\n/);
+        } else {
+          rawList = msg.textList.split(','); // default comma
+        }
+        textList = rawList.map(t => t.trim()).filter(t => t.length > 0);
       }
 
-      const textList = rawList.map(t => t.trim()).filter(t => t.length > 0);
+      // 3. Validation
+      // We need EITHER a text list OR (prefix/suffix/casing change) to proceed.
+      const hasTextList = textList.length > 0;
+      const hasPrefix = msg.prefix && msg.prefix.length > 0;
+      const hasSuffix = msg.suffix && msg.suffix.length > 0;
+      const hasCasing = msg.casing && msg.casing !== 'original';
 
-      if (textList.length === 0) {
-        figma.notify("❌ Text list is empty.");
+      if (!hasTextList && !hasPrefix && !hasSuffix && !hasCasing) {
+        figma.notify("❌ Enter text to replace, or add a Prefix/Suffix to update existing text.");
         return;
       }
 
       notificationHandler = figma.notify(`Updating ${textNodes.length} layers...`, { timeout: Infinity });
 
-      // 3. Optimization Vars
-      const loadedFonts = new Set();
+      // 4. Load Fonts & Apply
       let updatedCount = 0;
       let errorCount = 0;
+      const loadedFonts = new Set();
 
-      // 4. Casing Helper
-      const applyCasing = (text, casingMode) => {
-        if (!text) return "";
-        if (casingMode === 'upper') return text.toUpperCase();
-        if (casingMode === 'lower') return text.toLowerCase();
-        if (casingMode === 'title') {
-          return text.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
-        }
-        return text;
-      };
-
-      // 5. Main Loop
       for (let i = 0; i < textNodes.length; i++) {
         const node = textNodes[i];
-        
-        try {
-          if (node.hasMissingFont) {
-            errorCount++;
-            continue; 
-          }
 
-          // Handle Fonts
+        try {
+          // Load Font
           let fontName = node.fontName;
           if (fontName === figma.mixed) {
              if (node.characters.length > 0) fontName = node.getRangeFontName(0, 1);
@@ -82,16 +72,25 @@ figma.ui.onmessage = async (msg) => {
             loadedFonts.add(fontKey);
           }
 
-          // Select Data
+          // Determine Base Text
           let baseText = "";
-          if (msg.mode === 'random') {
-            baseText = textList[Math.floor(Math.random() * textList.length)];
+          
+          if (hasTextList) {
+            // SCENARIO A: User provided a list -> Overwrite existing text
+            if (msg.mode === 'random') {
+              baseText = textList[Math.floor(Math.random() * textList.length)];
+            } else {
+              baseText = textList[i % textList.length];
+            }
           } else {
-            baseText = textList[i % textList.length];
+            // SCENARIO B: No list provided -> Use existing text (Append Mode)
+            baseText = node.characters;
           }
 
-          // Formatting with PREFIX & SUFFIX
+          // Apply Casing
           const casedText = applyCasing(baseText, msg.casing);
+          
+          // Apply Prefix & Suffix
           const prefix = msg.prefix || "";
           const suffix = msg.suffix || ""; 
           
@@ -106,17 +105,33 @@ figma.ui.onmessage = async (msg) => {
         }
       }
 
+      if (notificationHandler) notificationHandler.cancel();
+
       if (errorCount > 0) {
         figma.notify(`✅ Updated ${updatedCount}. (Skipped ${errorCount} errors)`);
       } else {
         figma.notify(`✅ Updated ${updatedCount} layers!`);
       }
 
-    } catch (err) {
-      console.error(err);
-      figma.notify("❌ An error occurred.");
-    } finally {
+    } catch (error) {
       if (notificationHandler) notificationHandler.cancel();
+      console.error(error);
+      figma.notify("❌ An error occurred. Check console for details.");
     }
   }
 };
+
+// --- HELPER: Casing Logic ---
+function applyCasing(text, type) {
+  if (!text) return "";
+  switch (type) {
+    case 'upper': return text.toUpperCase();
+    case 'lower': return text.toLowerCase();
+    case 'title': 
+      // Simple Title Case: Capitalize first letter of every word
+      return text.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+    case 'original': 
+    default: 
+      return text;
+  }
+}
